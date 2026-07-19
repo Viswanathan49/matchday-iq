@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.83% </span>
+                <span class="strong">42.5% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/31</span>
+                <span class='fraction'>17/40</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.58% </span>
+                <span class="strong">34.28% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/17</span>
+                <span class='fraction'>12/35</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">65.38% </span>
+                <span class="strong">48.57% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/26</span>
+                <span class='fraction'>17/35</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -134,7 +134,26 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,6 +176,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,9 +266,28 @@ export const askAssistant = async (query, language = 'en', location = '') =&gt; 
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error("Backend error, using local fallback", error);</span>
 <span class="cstat-no" title="statement not covered" >    await delay(800);</span>
+    const q = <span class="cstat-no" title="statement not covered" >query.toLowerCase();</span>
+    
+    // Mock Routing
+<span class="cstat-no" title="statement not covered" >    if (q.includes('bathroom') || q.includes('restroom') || q.includes('toilet')) {</span>
+<span class="cstat-no" title="statement not covered" >      return { reply: 'The nearest restrooms are located near Gate B. I have mapped the route for you! [ROUTE:Gate B]', intent: 'routing' };</span>
+    }
+<span class="cstat-no" title="statement not covered" >    if (q.includes('food') || q.includes('hungry') || q.includes('hotdog')) {</span>
+<span class="cstat-no" title="statement not covered" >      return { reply: 'There are plenty of concessions in the Food Court. Follow the blue line on your map! [ROUTE:Food Court]', intent: 'routing' };</span>
+    }
+    
+    // Mock Incident Reporting
+<span class="cstat-no" title="statement not covered" >    if (q.includes('spill') || q.includes('slippery')) {</span>
+<span class="cstat-no" title="statement not covered" >      return { reply: 'Thank you for reporting this. I have immediately alerted the janitorial staff to clean up the spill near Gate B. Please step carefully! [INCIDENT:spill:Gate B]', intent: 'report' };</span>
+    }
+<span class="cstat-no" title="statement not covered" >    if (q.includes('fight') || q.includes('security')) {</span>
+<span class="cstat-no" title="statement not covered" >      return { reply: 'I have dispatched security to Section 112 immediately. Please stay safe. [INCIDENT:security:Section 112]', intent: 'report' };</span>
+    }
+&nbsp;
+    // Default Fallback
 <span class="cstat-no" title="statement not covered" >    return {</span>
-      reply: 'The server is currently unreachable. Please try again.',
-      intent: 'error'
+      reply: "I am your MatchDay IQ AI concierge! I can help you find your way around the stadium, locate food and restrooms, or report issues to our staff. How can I assist you?",
+      intent: 'general'
     };
   }
 };
@@ -283,7 +340,7 @@ export const getStadiumDensity = async () =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T16:38:24.749Z
+                at 2026-07-19T16:51:37.829Z
             </div>
         <script src="../prettify.js"></script>
         <script>
