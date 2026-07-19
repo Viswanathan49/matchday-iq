@@ -3,6 +3,7 @@
  */
 
 const API_BASE = 'http://localhost:5000/api';
+const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
 
 /**
  * Simulates a delay if backend fails, otherwise calls real backend.
@@ -11,6 +12,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const askAssistant = async (query, language = 'en', location = '') => {
   try {
+    if (isProd) throw new Error('Offline Mode');
     const res = await fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -49,6 +51,7 @@ export const askAssistant = async (query, language = 'en', location = '') => {
 
 export const getOptimalRoute = async (currentZone, destination, constraints = {}) => {
   try {
+    if (isProd) throw new Error('Offline Mode');
     const res = await fetch(`${API_BASE}/route`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -76,6 +79,7 @@ export const getOptimalRoute = async (currentZone, destination, constraints = {}
 
 export const getStadiumDensity = async () => {
   try {
+    if (isProd) throw new Error('Offline Mode');
     const res = await fetch(`${API_BASE}/density`);
     if (!res.ok) throw new Error('API Error');
     return await res.json();
