@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import DOMPurify from 'dompurify';
 import { askAssistant } from '../services/aiService';
 import PropTypes from 'prop-types';
+import { STORAGE_KEY_CHATBOT, STORAGE_KEY_INCIDENTS } from '../constants';
 
 const Message = ({ text, isUser, isRtl }) => {
   const safeText = DOMPurify.sanitize(text);
@@ -27,12 +28,16 @@ Message.propTypes = {
 };
 
 const Chatbot = ({ onRouteAction }) => {
+  /**
+   * Load persisted chat history from localStorage or fall back to the welcome message.
+   * Wrap in try/catch to handle corrupted data gracefully.
+   */
   const [messages, setMessages] = useState(() => {
     try {
-      const saved = localStorage.getItem('chatbot_messages');
+      const saved = localStorage.getItem(STORAGE_KEY_CHATBOT);
       if (saved) return JSON.parse(saved);
     } catch {
-      localStorage.removeItem('chatbot_messages');
+      localStorage.removeItem(STORAGE_KEY_CHATBOT);
     }
     return [{ id: '1', text: 'Hello! I am your MatchDay IQ Assistant. How can I help you?', isUser: false }];
   });
@@ -45,7 +50,11 @@ const Chatbot = ({ onRouteAction }) => {
   const isRtl = language === 'ar';
 
   useEffect(() => {
-    localStorage.setItem('chatbot_messages', JSON.stringify(messages));
+    try {
+      localStorage.setItem(STORAGE_KEY_CHATBOT, JSON.stringify(messages));
+    } catch {
+      // localStorage quota exceeded or unavailable — fail silently
+    }
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -82,11 +91,18 @@ const Chatbot = ({ onRouteAction }) => {
         
         // Auto-save incident to localStorage for Staff Portal
         try {
-          const existing = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
-          const incident = { id: Date.now().toString(), type, location: loc, timestamp: new Date().toISOString(), status: 'active', source: 'ai-chatbot' };
-          localStorage.setItem('stadium_incidents', JSON.stringify([incident, ...existing]));
-        } catch (storageErr) {
-          console.warn('Could not save incident to local storage:', storageErr);
+          const existing = JSON.parse(localStorage.getItem(STORAGE_KEY_INCIDENTS) || '[]');
+          const incident = {
+            id: Date.now().toString(),
+            type,
+            location: loc,
+            timestamp: new Date().toISOString(),
+            status: 'active',
+            source: 'ai-chatbot'
+          };
+          localStorage.setItem(STORAGE_KEY_INCIDENTS, JSON.stringify([incident, ...existing]));
+        } catch {
+          // localStorage unavailable — incident not persisted, but UX continues
         }
       }
 
@@ -95,12 +111,11 @@ const Chatbot = ({ onRouteAction }) => {
         text: replyText, 
         isUser: false 
       }]);
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, { 
-        id: (Date.now() + 1).toString(), 
-        text: 'Sorry, I am having trouble connecting.', 
-        isUser: false 
+    } catch {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        text: 'Sorry, I am having trouble connecting. Please try again in a moment.',
+        isUser: false
       }]);
     } finally {
       setIsTyping(false);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getOptimalRoute } from '../services/aiService';
 import PropTypes from 'prop-types';
 import StadiumMap from './StadiumMap';
@@ -85,6 +85,10 @@ const CrowdRouting = ({ initialDestination }) => {
     }
   }, [initialDestination]);
 
+  /**
+   * Submits a routing request using the selected locations and accessibility constraints.
+   * Scrolls to the result panel on success.
+   */
   const handleRouteSearch = async (e) => {
     e.preventDefault();
     if (!currentLocation || !destination) return;
@@ -97,16 +101,18 @@ const CrowdRouting = ({ initialDestination }) => {
       setTimeout(() => {
         routeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Route service already provides a local fallback — this is a terminal failure
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCheck = (e) => {
-    setConstraints({ ...constraints, [e.target.name]: e.target.checked });
-  };
+  /** Toggles an accessibility constraint checkbox. */
+  const handleCheck = useCallback((e) => {
+    const { name, checked } = e.target;
+    setConstraints(prev => ({ ...prev, [name]: checked }));
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
