@@ -40,14 +40,13 @@ const IncidentForm = () => {
       // Toast Notification
       const toast = document.createElement('div');
       toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl z-50 font-medium transition-opacity duration-500';
-      toast.innerText = '✅ Incident Reported';
+      toast.textContent = '✅ Incident Reported';
       document.body.appendChild(toast);
       setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 500);
       }, 3000);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setStatus('Error connecting to server.');
     }
   };

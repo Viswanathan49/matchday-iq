@@ -1,9 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-const Dashboard = React.lazy(() => import('./components/Dashboard'));
-const Chatbot = React.lazy(() => import('./components/Chatbot'));
-const CrowdRouting = React.lazy(() => import('./components/CrowdRouting'));
 const FanPortal = React.lazy(() => import('./components/FanPortal'));
 const StaffPortal = React.lazy(() => import('./components/StaffPortal'));
 

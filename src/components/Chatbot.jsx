@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import { askAssistant } from '../services/aiService';
 import PropTypes from 'prop-types';

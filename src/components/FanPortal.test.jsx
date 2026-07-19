@@ -110,4 +110,16 @@ describe('FanPortal Component', () => {
     fireEvent.click(screen.getByTestId('match-selector'));
     expect(screen.getByRole('tablist', { name: /Fan portal sections/i })).toBeInTheDocument();
   });
+
+  it('allows changing selected match', () => {
+    render(<FanPortal />);
+    fireEvent.click(screen.getByTestId('match-selector'));
+    // Portal is open now
+    expect(screen.queryByTestId('match-selector')).not.toBeInTheDocument();
+    
+    // Click Change Match button
+    fireEvent.click(screen.getByRole('button', { name: /Change Match/i }));
+    // MatchSelector should be displayed again
+    expect(screen.getByTestId('match-selector')).toBeInTheDocument();
+  });
 });

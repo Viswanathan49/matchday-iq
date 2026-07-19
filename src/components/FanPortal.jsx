@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import Dashboard from './Dashboard';
 import Chatbot from './Chatbot';
 import CrowdRouting from './CrowdRouting';
@@ -89,10 +88,6 @@ const FanPortal = () => {
       </div>
     </div>
   );
-};
-
-FanPortal.propTypes = {
-  // No external props — fully self-contained portal
 };
 
 export default FanPortal;

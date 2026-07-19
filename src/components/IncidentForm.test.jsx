@@ -7,6 +7,11 @@ describe('IncidentForm Component', () => {
     localStorage.clear();
   });
 
+  afterEach(() => {
+    // Clean up any leaked toasts in document.body
+    document.querySelectorAll('.fixed.top-4.right-4').forEach(toast => toast.remove());
+  });
+
   it('renders correctly with all form elements', () => {
     render(<IncidentForm />);
     expect(screen.getByText('Report an Issue')).toBeInTheDocument();
@@ -71,4 +76,65 @@ describe('IncidentForm Component', () => {
       expect(screen.queryByText(/Selected: Gate B/)).not.toBeInTheDocument();
     }, { timeout: 3000 });
   }, 10000);
+
+  it('falls back when existing storage contains invalid JSON', async () => {
+    localStorage.setItem('stadium_incidents', 'invalid-json-{');
+    render(<IncidentForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'North Gate' }));
+    fireEvent.click(screen.getByText('Submit Report'));
+
+    await waitFor(() => {
+      const stored = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
+      expect(stored.length).toBe(1);
+      expect(stored[0].location).toBe('North Gate');
+    }, { timeout: 3000 });
+  }, 10000);
+
+  it('handles write errors to localStorage gracefully', async () => {
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Storage full');
+    });
+    render(<IncidentForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'North Gate' }));
+    fireEvent.click(screen.getByText('Submit Report'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Error connecting to server/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    spy.mockRestore();
+  }, 10000);
+
+  it('creates, fades and removes toast notification using timers', async () => {
+    vi.useFakeTimers();
+    render(<IncidentForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Gate B' }));
+    fireEvent.click(screen.getByText('Submit Report'));
+
+    // Fast-forward PWA submit delay inside act
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800);
+    });
+
+    // Verify toast is present
+    const toast = screen.getByText('✅ Incident Reported');
+    expect(toast).toBeInTheDocument();
+
+    // Advance 3000ms to trigger fade out inside act
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+    expect(toast.style.opacity).toBe('0');
+
+    // Advance 500ms to trigger remove inside act
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(toast).not.toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
 });

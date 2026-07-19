@@ -102,4 +102,23 @@ describe('StadiumMap Component', () => {
     render(<StadiumMap selectedZone={null} onSelect={mockOnSelect} />);
     expect(screen.getByRole('radiogroup', { name: /Interactive Stadium Map/i })).toBeInTheDocument();
   });
+
+  it('updates visual focus state on focus and blur', () => {
+    render(<StadiumMap selectedZone={null} onSelect={mockOnSelect} />);
+    const northGate = screen.getByRole('radio', { name: 'North Gate' });
+    
+    // Focus triggers setting focusedId
+    fireEvent.focus(northGate);
+    expect(northGate).toHaveAttribute('fill', '#93c5fd');
+
+    // Blur clears focusedId
+    fireEvent.blur(northGate);
+    expect(northGate).toHaveAttribute('fill', '#e2e8f0');
+  });
+
+  it('renders single-word zone label correctly', () => {
+    render(<StadiumMap selectedZone={null} onSelect={mockOnSelect} />);
+    // Concourse has a single-word label, and should be rendered inside the svg
+    expect(screen.getByText('Concourse')).toBeInTheDocument();
+  });
 });

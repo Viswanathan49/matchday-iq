@@ -1,5 +1,5 @@
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
 import StaffPortal from './StaffPortal';
 
 const MOCK_INCIDENT = {
@@ -102,5 +102,23 @@ describe('StaffPortal Component', () => {
       expect(screen.queryByText(/Gate A/i)).not.toBeInTheDocument();
       expect(screen.getByText(/No active incidents/i)).toBeInTheDocument();
     });
+  });
+
+  it('handles non-array and corrupt storage data gracefully', async () => {
+    localStorage.setItem('stadium_incidents', JSON.stringify({ invalid: 'object' }));
+    render(<StaffPortal />);
+    await waitFor(() => {
+      expect(screen.getByText(/No active incidents/i)).toBeInTheDocument();
+    });
+  });
+
+  it('handles storage read errors gracefully', async () => {
+    const originalGetItem = localStorage.getItem;
+    localStorage.getItem = () => { throw new Error('Quota exceeded'); };
+    render(<StaffPortal />);
+    await waitFor(() => {
+      expect(screen.getByText(/No active incidents/i)).toBeInTheDocument();
+    });
+    localStorage.getItem = originalGetItem;
   });
 });

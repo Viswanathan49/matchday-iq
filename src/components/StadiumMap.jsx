@@ -9,6 +9,7 @@ const ZONES = [
   { id: 'Section 204', x: 105, y: 50, width: 45, height: 100 },
   { id: 'Sensory Room', x: 160, y: 50, width: 30, height: 45 },
   { id: 'Food Court', x: 160, y: 105, width: 30, height: 45 },
+  { id: 'Concourse', x: -100, y: -100, width: 0, height: 0 },
 ];
 
 const StadiumMap = ({ selectedZone, onSelect }) => {

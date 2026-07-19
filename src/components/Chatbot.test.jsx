@@ -196,4 +196,51 @@ describe('Chatbot Component', () => {
     expect(screen.getByLabelText(/Send message/i)).toBeDisabled();
     expect(aiService.askAssistant).not.toHaveBeenCalled();
   });
+
+  it('handles corrupted messages JSON in localStorage on mount', () => {
+    localStorage.setItem('chatbot_messages', 'invalid-corrupt-json-{');
+    render(<Chatbot />);
+    expect(screen.getByText(WELCOME_TEXT)).toBeInTheDocument();
+  });
+
+  it('handles localStorage write errors when saving messages', async () => {
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = () => { throw new Error('Storage full'); };
+    
+    aiService.askAssistant.mockResolvedValueOnce({ reply: 'I hear you', intent: 'general' });
+    render(<Chatbot />);
+
+    fireEvent.change(screen.getByLabelText(/Chat input message/i), { target: { value: 'test setItem error' } });
+    fireEvent.click(screen.getByLabelText(/Send message/i));
+
+    await waitFor(() => {
+      expect(screen.getByText('I hear you')).toBeInTheDocument();
+    });
+
+    localStorage.setItem = originalSetItem;
+  });
+
+  it('handles localStorage write errors when auto-reporting incident from AI reply', async () => {
+    const originalSetItem = localStorage.setItem;
+    // Allow messages write but block incidents write
+    localStorage.setItem = (key, val) => {
+      if (key === 'stadium_incidents') throw new Error('Blocked');
+      originalSetItem(key, val);
+    };
+
+    aiService.askAssistant.mockResolvedValueOnce({
+      reply: 'Reported! [INCIDENT:spill:Gate A]',
+      intent: 'report',
+    });
+    render(<Chatbot />);
+
+    fireEvent.change(screen.getByLabelText(/Chat input message/i), { target: { value: 'spill' } });
+    fireEvent.click(screen.getByLabelText(/Send message/i));
+
+    await waitFor(() => {
+      expect(screen.getByText('Reported!')).toBeInTheDocument();
+    });
+
+    localStorage.setItem = originalSetItem;
+  });
 });
