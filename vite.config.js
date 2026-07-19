@@ -13,8 +13,8 @@ export default defineConfig({
         enabled: true
       },
       manifest: {
-        name: 'Smart Stadiums Operations',
-        short_name: 'StadiumOps',
+        name: 'MatchDay IQ',
+        short_name: 'MatchDay IQ',
         theme_color: '#ffffff',
         icons: [
           {

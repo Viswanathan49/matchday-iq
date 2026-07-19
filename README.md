@@ -1,54 +1,57 @@
-# Smart Stadiums & Tournament Operations (FIFA 2026)
+# MatchDay IQ - Smart Stadiums & Tournament Operations (FIFA 2026)
 
 ## Overview
-This is a GenAI-enabled solution designed to enhance stadium operations and the overall tournament experience for FIFA World Cup 2026. The application leverages a mocked Generative AI layer to provide dynamic crowd-routing intelligence, multilingual chatbot assistance, and real-time operational dashboarding.
+**MatchDay IQ** is a GenAI-enabled solution designed to enhance stadium operations and the overall tournament experience for the FIFA World Cup 2026. The application leverages a Generative AI layer to provide dynamic crowd-routing intelligence, multilingual chatbot assistance, and real-time operational dashboarding for both fans and stadium staff.
 
 ## Key Features
-- **Progressive Web App (PWA)**: Configured for offline capability and poor stadium reception.
-- **Real-Time Operations Dashboard**: Memoized heatmaps showing venue capacity and density.
-- **Multilingual AI Assistant**: Contextual chatbot that translates and assists fans in real-time.
-- **Smart Crowd Routing**: AI-powered dynamic routing to avoid congestion.
+- **Match Selector & Context**: Fans must select an active or upcoming match to enter the portal, providing context to their stadium location.
+- **Dark / Light Mode**: A seamless, toggleable dark mode theme built natively with Tailwind CSS v4 and stored in `localStorage`.
+- **Multilingual AI Assistant**: A contextual chatbot that translates and assists fans in real-time, parsing intelligent commands to automatically trigger UI changes.
+- **Smart Crowd Routing & Interactive Map**: AI-powered dynamic routing to avoid congestion, paired with an accessible, keyboard-navigable SVG stadium map.
+- **Real-Time Staff Operations Dashboard**: Heatmaps showing venue capacity, crowd density, and a live incident tracking system across the stadium.
+- **Progressive Web App (PWA)**: Configured for offline capability and resilience in poor stadium reception environments.
 
-## Architectural Rules Implemented (100/100 Grader Playbook)
-1. **React/Vite/Tailwind**: Ultra-fast build with Utility-first CSS styling.
-2. **Zero Inline Styles**: All styling is exclusively done with Tailwind CSS classes.
-3. **Single Responsibility**: Modular components, separated logic.
-4. **Type Checking & Documentation**: `PropTypes` and `JSDoc` comments are strictly enforced.
-5. **Strict Security**: No `dangerouslySetInnerHTML` without rigorous sanitization using `DOMPurify`.
-6. **Efficiency**: `React.lazy()` and `<Suspense>` used for route-level code splitting. `useMemo` handles heatmap rendering.
-7. **Testing**: Vitest with >85% code coverage across logic and UI components.
-8. **Accessibility**: 100% semantic HTML with `aria-labels`.
+## Architectural Design
+1. **Multi-Portal Structure**: The application separates concerns cleanly between a `FanPortal` (for public interaction) and a `StaffPortal` (for stadium operations).
+2. **GenAI Data Flow**: User input is sent to a backend Flask API service where a Gemini AI model determines intent and context. The response includes action tokens (e.g., `[ROUTE:Gate B]`) that are intercepted by the frontend to dynamically control the React UI.
+3. **Component-Driven UI**: Strict single responsibility principle using functional React components and React Hooks (`useState`, `useEffect`, `useRef`).
+4. **Utility-First Styling**: All styling is exclusively done with Tailwind CSS classes, completely avoiding messy inline styles.
+5. **Secure & Accessible Execution**: Data rendered from AI responses is sanitized. The frontend enforces strict `PropTypes` for robust type-checking and uses ARIA attributes for screen-reader and keyboard accessibility.
 
-## GenAI Data Flow Architecture
-
-```mermaid
-graph TD
-    A[Fan User Interface] -->|Query / Input| B(Chatbot / Routing Component)
-    B -->|Sanitized by DOMPurify| C{Mock GenAI Service Layer}
-    C -->|Simulate Delay & AI Processing| D[LLM API / Mock Intelligence]
-    D -->|Contextual Intent & Response| E[Routing Logic / Translation]
-    E -->|JSON Response| B
-    B -->|Render Message/Route| A
-```
+## Tech Stack
+- **Frontend**: React 18, Vite, Tailwind CSS v4.
+- **Backend**: Python 3.14, Flask, Google Generative AI (Gemini).
+- **Image Processing**: Rembg (AI Background Removal), Pillow.
+- **Tooling**: Node.js, npm, Git.
+- **Testing**: Vitest (for unit testing and coverage tracking).
 
 ## Setup & Running
 
-1. **Install dependencies**
+1. **Install Frontend Dependencies**
    ```bash
    npm install
    ```
 
-2. **Run Development Server**
+2. **Install Backend Dependencies**
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. **Run Backend API Server**
+   ```bash
+   cd backend
+   python main.py
+   ```
+
+4. **Run Frontend Development Server**
    ```bash
    npm run dev
    ```
 
-3. **Run Tests with Coverage**
+5. **Run Tests**
    ```bash
    npm run test
-   ```
-
-4. **Build for Production**
-   ```bash
-   npm run build
    ```
