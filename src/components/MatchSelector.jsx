@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MATCHES = [
@@ -8,9 +8,10 @@ const MATCHES = [
     team1Logo: '/spain_nobg.png',
     team2: 'Argentina',
     team2Logo: '/argentina_nobg.png',
-    status: 'Ongoing',
+    status: 'Upcoming',
     score: 'VS',
     time: '3:00 PM ET',
+    targetDate: '2026-07-19T15:00:00-04:00',
     stadium: 'MetLife Stadium, NY/NJ',
     type: 'Final',
     capacity: '82,500'
@@ -44,6 +45,24 @@ const MATCHES = [
 ];
 
 const MatchSelector = ({ onSelect }) => {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getCountdown = (targetDate) => {
+    const diff = new Date(targetDate) - now;
+    if (diff <= 0) return 'Live Now';
+    
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff / 1000 / 60) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
       <div className="text-center mb-10">
@@ -62,9 +81,11 @@ const MatchSelector = ({ onSelect }) => {
             <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold rounded-full ${
               match.status === 'Ongoing' 
                 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' 
-                : match.status === 'Finished'
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                  : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                : match.status === 'Upcoming'
+                  ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                  : match.status === 'Finished'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
             }`}>
               {match.status}
             </div>
@@ -83,8 +104,15 @@ const MatchSelector = ({ onSelect }) => {
                 <span className="mt-3 font-bold text-slate-800 dark:text-white text-sm text-center">{match.team1}</span>
               </div>
 
-              <div className="text-2xl font-black text-slate-800 dark:text-slate-200 px-2 tracking-widest whitespace-nowrap">
-                {match.score}
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-2xl font-black text-slate-800 dark:text-slate-200 px-2 tracking-widest whitespace-nowrap">
+                  {match.score}
+                </div>
+                {match.targetDate && (
+                  <div className="mt-1 font-mono text-sm font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded animate-pulse">
+                    {getCountdown(match.targetDate)}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col items-center w-24">
