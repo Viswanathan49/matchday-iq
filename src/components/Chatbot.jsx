@@ -28,8 +28,12 @@ Message.propTypes = {
 
 const Chatbot = ({ onRouteAction }) => {
   const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('chatbot_messages');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem('chatbot_messages');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      localStorage.removeItem('chatbot_messages');
+    }
     return [{ id: '1', text: 'Hello! I am your MatchDay IQ Assistant. How can I help you?', isUser: false }];
   });
   const [input, setInput] = useState('');
@@ -76,12 +80,14 @@ const Chatbot = ({ onRouteAction }) => {
         const loc = incidentMatch[2].trim();
         replyText = replyText.replace(incidentMatch[0], '').trim();
         
-        // Auto-fire to backend
-        fetch('/api/incidents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, location: loc })
-        }).catch(err => console.error(err));
+        // Auto-save incident to localStorage for Staff Portal
+        try {
+          const existing = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
+          const incident = { id: Date.now().toString(), type, location: loc, timestamp: new Date().toISOString(), status: 'active', source: 'ai-chatbot' };
+          localStorage.setItem('stadium_incidents', JSON.stringify([incident, ...existing]));
+        } catch (storageErr) {
+          console.warn('Could not save incident to local storage:', storageErr);
+        }
       }
 
       setMessages(prev => [...prev, { 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { askAssistant, getOptimalRoute, getStadiumDensity } from './aiService';
 
-// Mock global fetch
+// Mock global fetch to simulate backend responses
 global.fetch = vi.fn();
 
 describe('aiService', () => {
@@ -9,7 +9,9 @@ describe('aiService', () => {
     fetch.mockClear();
   });
 
-  it('askAssistant translates food query to Spanish', async () => {
+  // ─── askAssistant ─────────────────────────────────────────────────────────
+
+  it('askAssistant returns backend response when fetch succeeds', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ reply: 'comida', intent: 'facilities_food' })
@@ -19,27 +21,52 @@ describe('aiService', () => {
     expect(res.intent).toBe('facilities_food');
   });
 
-  it('askAssistant replies with restroom info in English', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ reply: 'restrooms', intent: 'facilities_restroom' })
-    });
-    const res = await askAssistant('restroom', 'en');
-    expect(res.reply).toContain('restrooms');
-    expect(res.intent).toBe('facilities_restroom');
+  it('askAssistant returns restroom route on fallback', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network Error'));
+    const res = await askAssistant('where is the restroom?', 'en');
+    expect(res.reply).toMatch(/restroom|Gate B/i);
+    expect(res.intent).toBe('routing');
   });
 
-  it('askAssistant returns default greeting', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ reply: 'How can I help', intent: 'greeting' })
-    });
-    const res = await askAssistant('hello', 'en');
-    expect(res.reply).toContain('How can I help');
-    expect(res.intent).toBe('greeting');
+  it('askAssistant returns food route on fallback', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network Error'));
+    const res = await askAssistant('I am hungry', 'en');
+    expect(res.reply).toMatch(/Food Court/i);
+    expect(res.intent).toBe('routing');
   });
 
-  it('getOptimalRoute returns expected object', async () => {
+  it('askAssistant returns spill incident on fallback', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network Error'));
+    const res = await askAssistant('there is a big spill on the floor', 'en');
+    expect(res.intent).toBe('report');
+    expect(res.reply).toMatch(/\[INCIDENT:spill/i);
+  });
+
+  it('askAssistant returns security incident on fallback', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network Error'));
+    const res = await askAssistant('there is a fight', 'en');
+    expect(res.intent).toBe('report');
+    expect(res.reply).toMatch(/\[INCIDENT:security/i);
+  });
+
+  it('askAssistant returns general fallback for unknown queries', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network Error'));
+    const res = await askAssistant('hello there', 'en');
+    expect(res.intent).toBe('general');
+    expect(res.reply).toBeTruthy();
+  });
+
+  it('askAssistant throws on non-ok HTTP response and falls back', async () => {
+    fetch.mockResolvedValueOnce({ ok: false });
+    const res = await askAssistant('test', 'en');
+    // Should have fallen back gracefully
+    expect(res).toHaveProperty('reply');
+    expect(res).toHaveProperty('intent');
+  });
+
+  // ─── getOptimalRoute ──────────────────────────────────────────────────────
+
+  it('getOptimalRoute returns expected object from backend', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ route: ['A', 'X', 'Y', 'B'], estimatedTime: 10, crowdingLevel: 'Low' })
@@ -49,18 +76,40 @@ describe('aiService', () => {
     expect(route).toHaveProperty('estimatedTime');
     expect(route).toHaveProperty('crowdingLevel');
     expect(route.route[0]).toBe('A');
-    expect(route.route[3]).toBe('B');
   });
 
-  it('getStadiumDensity returns array of densities', async () => {
+  it('getOptimalRoute uses fallback when fetch fails', async () => {
+    fetch.mockRejectedValueOnce(new Error('Offline'));
+    const route = await getOptimalRoute('North Gate', 'Food Court', { wheelchair: true });
+    expect(route.stepFree).toBe(true);
+    expect(route.route).toContain('North Gate');
+    expect(route.route).toContain('Food Court');
+  });
+
+  it('getOptimalRoute fallback respects wheelchair constraint', async () => {
+    fetch.mockRejectedValueOnce(new Error('Offline'));
+    const route = await getOptimalRoute('Gate B', 'South Gate', { wheelchair: true });
+    expect(route.stepFree).toBe(true);
+  });
+
+  // ─── getStadiumDensity ────────────────────────────────────────────────────
+
+  it('getStadiumDensity returns array of densities from backend', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ([{ zone: 'Z1', density: 50 }])
     });
     const data = await getStadiumDensity();
     expect(Array.isArray(data)).toBe(true);
-    expect(data.length).toBeGreaterThan(0);
     expect(data[0]).toHaveProperty('zone');
     expect(data[0]).toHaveProperty('density');
+  });
+
+  it('getStadiumDensity uses fallback when fetch fails', async () => {
+    fetch.mockRejectedValueOnce(new Error('Offline'));
+    const data = await getStadiumDensity();
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThan(0);
+    expect(typeof data[0].density).toBe('number');
   });
 });

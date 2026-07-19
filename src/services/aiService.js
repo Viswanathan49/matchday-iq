@@ -1,15 +1,24 @@
 /**
- * API Service Layer interfacing with the FastAPI backend.
+ * API Service Layer.
+ * In production (Vercel), all functions use an intelligent local fallback.
+ * Locally, the app attempts to connect to the FastAPI backend at localhost:5000.
  */
 
 const API_BASE = 'http://localhost:5000/api';
+
+/** Detects if the app is running in a deployed (non-localhost) environment. */
 const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
 
-/**
- * Simulates a delay if backend fails, otherwise calls real backend.
- */
+/** @param {number} ms - Milliseconds to wait. */
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Sends a natural-language query to the AI assistant.
+ * @param {string} query - The user's message.
+ * @param {string} [language='en'] - BCP-47 language code.
+ * @param {string} [location=''] - The user's current location in the stadium.
+ * @returns {Promise<{reply: string, intent: string}>}
+ */
 export const askAssistant = async (query, language = 'en', location = '') => {
   try {
     if (isProd) throw new Error('Offline Mode');
@@ -49,6 +58,13 @@ export const askAssistant = async (query, language = 'en', location = '') => {
   }
 };
 
+/**
+ * Retrieves the optimal route between two zones, considering accessibility constraints.
+ * @param {string} currentZone - The starting zone ID.
+ * @param {string} destination - The destination zone ID.
+ * @param {{wheelchair?: boolean, lowVision?: boolean, deaf?: boolean}} [constraints={}]
+ * @returns {Promise<{route: string[], estimatedTime: number, crowdingLevel: string, stepFree: boolean}>}
+ */
 export const getOptimalRoute = async (currentZone, destination, constraints = {}) => {
   try {
     if (isProd) throw new Error('Offline Mode');
@@ -77,6 +93,10 @@ export const getOptimalRoute = async (currentZone, destination, constraints = {}
   }
 };
 
+/**
+ * Fetches live crowd density data for all stadium zones.
+ * @returns {Promise<Array<{zone: string, density: number}>>}
+ */
 export const getStadiumDensity = async () => {
   try {
     if (isProd) throw new Error('Offline Mode');

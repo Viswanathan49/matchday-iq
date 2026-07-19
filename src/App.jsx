@@ -1,5 +1,5 @@
 import React, { Suspense, useState } from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 const Chatbot = React.lazy(() => import('./components/Chatbot'));
@@ -7,12 +7,56 @@ const CrowdRouting = React.lazy(() => import('./components/CrowdRouting'));
 const FanPortal = React.lazy(() => import('./components/FanPortal'));
 const StaffPortal = React.lazy(() => import('./components/StaffPortal'));
 
+/** Accessible loading spinner shown while lazy components load. */
 const LoadingFallback = () => (
-  <div className="flex justify-center items-center h-[50vh]">
-    <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full" aria-label="Loading content"></div>
+  <div className="flex justify-center items-center h-[50vh]" role="status" aria-label="Loading">
+    <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full" aria-hidden="true"></div>
   </div>
 );
 
+/**
+ * Global error boundary — catches render-time errors in the component tree
+ * and displays a user-friendly fallback instead of a blank screen.
+ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[50vh] text-center p-8">
+          <div className="text-5xl mb-4" aria-hidden="true">⚠️</div>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Something went wrong</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">An unexpected error occurred. Please refresh the page.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Refresh Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/**
+ * Root application component.
+ * Manages portal selection (Fan / Staff), dark mode preference,
+ * and offline/online status detection.
+ */
 const App = () => {
   const [portal, setPortal] = useState(null);
   
@@ -90,7 +134,7 @@ const App = () => {
         </header>
 
         {isOffline && (
-          <div className="bg-red-600 text-white text-center py-2 text-sm font-bold z-40 animate-pulse">
+          <div role="alert" className="bg-red-600 text-white text-center py-2 text-sm font-bold z-40 animate-pulse">
             ⚠️ You are currently offline. The app is running in local PWA mode.
           </div>
         )}
@@ -205,7 +249,9 @@ const App = () => {
             </div>
           ) : (
             <Suspense fallback={<LoadingFallback />}>
-              {portal === 'fan' ? <FanPortal /> : <StaffPortal />}
+              <ErrorBoundary>
+                {portal === 'fan' ? <FanPortal /> : <StaffPortal />}
+              </ErrorBoundary>
             </Suspense>
           )}
         </main>
