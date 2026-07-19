@@ -12,11 +12,8 @@ const StaffPortal = () => {
 
   const fetchIncidents = async () => {
     try {
-      const res = await fetch('/api/incidents');
-      if (res.ok) {
-        const data = await res.json();
-        setIncidents(data);
-      }
+      const data = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
+      setIncidents(data.filter(inc => inc.status === 'active'));
     } catch (err) {
       console.error(err);
     } finally {
@@ -26,10 +23,10 @@ const StaffPortal = () => {
 
   const resolveIncident = async (id) => {
     try {
-      const res = await fetch(`/api/incidents/${id}/resolve`, { method: 'POST' });
-      if (res.ok) {
-        fetchIncidents();
-      }
+      const data = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
+      const updated = data.map(inc => inc.id === id ? { ...inc, status: 'resolved' } : inc);
+      localStorage.setItem('stadium_incidents', JSON.stringify(updated));
+      fetchIncidents();
     } catch (err) {
       console.error(err);
     }

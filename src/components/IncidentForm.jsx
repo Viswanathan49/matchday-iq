@@ -17,6 +17,17 @@ const IncidentForm = () => {
     try {
       // Simulate network request for PWA deployment
       await new Promise(resolve => setTimeout(resolve, 800));
+
+      const newIncident = {
+        id: Date.now().toString(),
+        type,
+        location,
+        timestamp: new Date().toISOString(),
+        status: 'active'
+      };
+      const existing = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
+      localStorage.setItem('stadium_incidents', JSON.stringify([newIncident, ...existing]));
+
       setStatus('Incident reported successfully. Staff has been notified.');
       setLocation('');
     } catch (err) {
