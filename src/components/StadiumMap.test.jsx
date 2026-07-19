@@ -6,9 +6,9 @@ describe('StadiumMap Component', () => {
   it('renders correctly', () => {
     render(<StadiumMap onSelect={() => {}} selectedZone="" />);
     expect(screen.getByText('Interactive Stadium Map')).toBeInTheDocument();
-    // Test some zones exist
-    expect(screen.getByText('North Gate')).toBeInTheDocument();
-    expect(screen.getByText('Section 112')).toBeInTheDocument();
+    // Test some zones exist by their aria-labels since text is split by tspan
+    expect(screen.getByLabelText('North Gate')).toBeInTheDocument();
+    expect(screen.getByLabelText('Section 112')).toBeInTheDocument();
   });
 
   it('handles click selection', () => {

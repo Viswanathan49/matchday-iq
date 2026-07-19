@@ -71,15 +71,33 @@ const StadiumMap = ({ selectedZone, onSelect }) => {
                 onFocus={() => setFocusedId(zone.id)}
                 onBlur={() => setFocusedId(null)}
               />
-              <text 
-                x={zone.x + zone.width / 2} 
-                y={zone.y + zone.height / 2} 
-                textAnchor="middle" 
-                dominantBaseline="middle"
-                className={`text-[8px] font-medium pointer-events-none ${isSelected ? 'fill-white' : 'fill-slate-700 dark:fill-slate-300'}`}
-              >
-                {zone.id}
-              </text>
+              {(() => {
+                const parts = zone.id.split(' ');
+                if (parts.length > 1) {
+                  return (
+                    <text 
+                      x={zone.x + zone.width / 2} 
+                      y={zone.y + zone.height / 2} 
+                      textAnchor="middle" 
+                      className={`text-[9px] font-medium pointer-events-none ${isSelected ? 'fill-white' : 'fill-slate-700 dark:fill-slate-300'}`}
+                    >
+                      <tspan x={zone.x + zone.width / 2} dy="-0.4em">{parts[0]}</tspan>
+                      <tspan x={zone.x + zone.width / 2} dy="1.2em">{parts.slice(1).join(' ')}</tspan>
+                    </text>
+                  );
+                }
+                return (
+                  <text 
+                    x={zone.x + zone.width / 2} 
+                    y={zone.y + zone.height / 2} 
+                    textAnchor="middle" 
+                    dominantBaseline="middle"
+                    className={`text-[9px] font-medium pointer-events-none ${isSelected ? 'fill-white' : 'fill-slate-700 dark:fill-slate-300'}`}
+                  >
+                    {zone.id}
+                  </text>
+                );
+              })()}
             </g>
           );
         })}

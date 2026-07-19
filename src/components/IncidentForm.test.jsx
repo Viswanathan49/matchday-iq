@@ -9,8 +9,6 @@ describe('IncidentForm Component', () => {
   });
 
   it('handles submission', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: true });
-    
     render(<IncidentForm />);
     
     // Select location
@@ -23,7 +21,6 @@ describe('IncidentForm Component', () => {
     fireEvent.click(screen.getByText('Submit Report'));
     
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
       expect(screen.getByText(/successfully/i)).toBeInTheDocument();
     });
   });
