@@ -1,20 +1,29 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import Dashboard from './Dashboard';
 import Chatbot from './Chatbot';
 import CrowdRouting from './CrowdRouting';
 import IncidentForm from './IncidentForm';
 import MatchSelector from './MatchSelector';
 
+/** Ordered list of portal tabs available to fans during a match. */
+const TABS = ['chat', 'route', 'dashboard', 'report'];
+
+/**
+ * FanPortal — the main interface for fans attending a FIFA 2026 match.
+ * Routes between AI concierge, wayfinding, crowd density, and incident reporting.
+ */
 const FanPortal = () => {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [activeTab, setActiveTab] = useState('chat');
-  // Used to bridge chat -> routing automatically
+  /** Bridges AI routing intent → Smart Routing tab with a pre-filled destination. */
   const [routeContext, setRouteContext] = useState(null);
 
-  const handleRouteAction = (destination) => {
+  /** Called by the Chatbot when it detects a navigation intent in the user's message. */
+  const handleRouteAction = useCallback((destination) => {
     setRouteContext({ destination });
     setActiveTab('route');
-  };
+  }, []);
 
   if (!selectedMatch) {
     return <MatchSelector onSelect={setSelectedMatch} />;
@@ -54,10 +63,12 @@ const FanPortal = () => {
         </button>
       </div>
 
-      <div className="flex justify-center space-x-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg max-w-sm mx-auto shadow-inner">
-        {['chat', 'route', 'dashboard', 'report'].map((tab) => (
+      <div className="flex justify-center space-x-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg max-w-sm mx-auto shadow-inner" role="tablist" aria-label="Fan portal sections">
+        {TABS.map((tab) => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeTab === tab
@@ -78,6 +89,10 @@ const FanPortal = () => {
       </div>
     </div>
   );
+};
+
+FanPortal.propTypes = {
+  // No external props — fully self-contained portal
 };
 
 export default FanPortal;

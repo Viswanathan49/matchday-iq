@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import StadiumMap from './StadiumMap';
+import { ALLOWED_INCIDENT_TYPES, STORAGE_KEY_INCIDENTS } from '../constants';
 
 const IncidentForm = () => {
   const [type, setType] = useState('spill');
@@ -18,8 +19,7 @@ const IncidentForm = () => {
       // Simulate network request for PWA deployment
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      const ALLOWED_TYPES = ['spill', 'medical', 'security', 'maintenance'];
-      const safeType = ALLOWED_TYPES.includes(type) ? type : 'spill';
+      const safeType = ALLOWED_INCIDENT_TYPES.includes(type) ? type : ALLOWED_INCIDENT_TYPES[0];
       const newIncident = {
         id: Date.now().toString(),
         type: safeType,
@@ -28,10 +28,10 @@ const IncidentForm = () => {
         status: 'active'
       };
       try {
-        const existing = JSON.parse(localStorage.getItem('stadium_incidents') || '[]');
-        localStorage.setItem('stadium_incidents', JSON.stringify([newIncident, ...existing]));
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY_INCIDENTS) || '[]');
+        localStorage.setItem(STORAGE_KEY_INCIDENTS, JSON.stringify([newIncident, ...existing]));
       } catch {
-        localStorage.setItem('stadium_incidents', JSON.stringify([newIncident]));
+        localStorage.setItem(STORAGE_KEY_INCIDENTS, JSON.stringify([newIncident]));
       }
 
       setStatus('Incident reported successfully. Staff has been notified.');

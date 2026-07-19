@@ -45,8 +45,8 @@ const Dashboard = () => {
           setDensities(data);
           setLoading(false);
         }
-      } catch (error) {
-        console.error("Failed to load density data", error);
+      } catch {
+        // Fallback data already provided by aiService — fail silently
         if (mounted) setLoading(false);
       }
     };
@@ -69,8 +69,8 @@ const Dashboard = () => {
       </header>
       
       {loading ? (
-        <div className="flex justify-center p-12" aria-live="polite">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+        <div className="flex justify-center p-12" role="status" aria-label="Loading crowd density" aria-live="polite">
+          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" aria-hidden="true" />
         </div>
       ) : (
         <>
