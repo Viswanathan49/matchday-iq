@@ -13,7 +13,7 @@ window.HTMLElement.prototype.scrollIntoView = function() {};
 describe('Chatbot Component', () => {
   it('renders initial message', () => {
     render(<Chatbot />);
-    expect(screen.getByText(/I am your AI Stadium Assistant/)).toBeInTheDocument();
+    expect(screen.getByText(/I am your MatchDay IQ Assistant/)).toBeInTheDocument();
   });
 
   it('handles user input and displays response', async () => {

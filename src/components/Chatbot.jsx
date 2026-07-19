@@ -28,7 +28,7 @@ Message.propTypes = {
 
 const Chatbot = ({ onRouteAction }) => {
   const [messages, setMessages] = useState([
-    { id: '1', text: 'Hello! I am your AI Stadium Assistant. How can I help you?', isUser: false }
+    { id: '1', text: 'Hello! I am your MatchDay IQ Assistant. How can I help you?', isUser: false }
   ]);
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState('en');

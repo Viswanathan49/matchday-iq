@@ -120,8 +120,8 @@ const App = () => {
 
                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
                       <div className="text-blue-200 text-sm font-medium mb-1">Incidents Resolved</div>
-                      <div className="text-4xl font-bold font-mono text-emerald-400">99.4%</div>
-                      <div className="text-xs text-emerald-200 mt-1">Powered by Stadium Assist</div>
+                      <div className="text-4xl font-black text-emerald-400">99.4%</div>
+                      <div className="text-xs text-emerald-200 mt-1">Powered by MatchDay IQ</div>
                     </div>
                   </div>
                 </div>
