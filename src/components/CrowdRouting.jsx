@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getOptimalRoute } from '../services/aiService';
 import PropTypes from 'prop-types';
 import StadiumMap from './StadiumMap';
 
-const RouteDisplay = ({ routeData }) => {
+const RouteDisplay = ({ routeData, containerRef }) => {
   if (!routeData) return null;
 
   return (
-    <div className="w-full lg:w-1/2 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div ref={containerRef} className="w-full lg:w-1/2 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Assistance Route</h3>
       
       <div className="flex flex-wrap gap-2 mb-6">
@@ -58,7 +58,11 @@ RouteDisplay.propTypes = {
     estimatedTime: PropTypes.number.isRequired,
     crowdingLevel: PropTypes.string.isRequired,
     stepFree: PropTypes.bool,
-  })
+  }),
+  containerRef: PropTypes.oneOfType([
+    PropTypes.func, 
+    PropTypes.shape({ current: PropTypes.any })
+  ])
 };
 
 const CrowdRouting = ({ initialDestination }) => {
@@ -72,6 +76,7 @@ const CrowdRouting = ({ initialDestination }) => {
   });
   const [loading, setLoading] = useState(false);
   const [route, setRoute] = useState(null);
+  const routeRef = useRef(null);
 
   useEffect(() => {
     if (initialDestination) {
@@ -89,6 +94,9 @@ const CrowdRouting = ({ initialDestination }) => {
     try {
       const data = await getOptimalRoute(currentLocation, destination, constraints);
       setRoute(data);
+      setTimeout(() => {
+        routeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } catch (err) {
       console.error(err);
     } finally {
@@ -176,7 +184,7 @@ const CrowdRouting = ({ initialDestination }) => {
           </button>
         </form>
 
-        <RouteDisplay routeData={route} />
+        <RouteDisplay routeData={route} containerRef={routeRef} />
       </div>
     </div>
   );
