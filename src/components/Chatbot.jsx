@@ -27,9 +27,11 @@ Message.propTypes = {
 };
 
 const Chatbot = ({ onRouteAction }) => {
-  const [messages, setMessages] = useState([
-    { id: '1', text: 'Hello! I am your MatchDay IQ Assistant. How can I help you?', isUser: false }
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('chatbot_messages');
+    if (saved) return JSON.parse(saved);
+    return [{ id: '1', text: 'Hello! I am your MatchDay IQ Assistant. How can I help you?', isUser: false }];
+  });
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState('en');
   const [location, setLocation] = useState('');
@@ -39,6 +41,7 @@ const Chatbot = ({ onRouteAction }) => {
   const isRtl = language === 'ar';
 
   useEffect(() => {
+    localStorage.setItem('chatbot_messages', JSON.stringify(messages));
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 

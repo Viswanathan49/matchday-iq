@@ -65,7 +65,14 @@ const MatchSelector = ({ onSelect }) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
-      <div className="text-center mb-10">
+      <div className="text-center mb-10 relative">
+        <div className="absolute right-0 top-0 hidden md:flex items-center space-x-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md rounded-full px-4 py-2 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <span className="text-xl">🌤️</span>
+          <div className="text-left">
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">New York / NJ</div>
+            <div className="text-[10px] text-slate-500 font-medium">72°F • Clear</div>
+          </div>
+        </div>
         <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Select Your Match</h2>
         <p className="mt-2 text-slate-600 dark:text-slate-400">Choose an ongoing or upcoming match to enter the Fan Portal.</p>
       </div>

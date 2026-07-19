@@ -26,6 +26,19 @@ const App = () => {
     return false;
   });
 
+  const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' ? !navigator.onLine : false);
+  
+  React.useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => setIsOffline(false);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
   // Apply theme to HTML class
   React.useEffect(() => {
     if (isDarkMode) {
@@ -75,6 +88,12 @@ const App = () => {
             </div>
           </nav>
         </header>
+
+        {isOffline && (
+          <div className="bg-red-600 text-white text-center py-2 text-sm font-bold z-40 animate-pulse">
+            ⚠️ You are currently offline. The app is running in local PWA mode.
+          </div>
+        )}
 
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {!portal ? (
